@@ -1,0 +1,6 @@
+description="A commandline tool to annotate variant call format (VCF) files with clonality information"
+requires="cmdliner core alcotest"
+version="0.0.0"
+directory="."
+archive(byte)="cloml.cma"
+archive(native)="cloml.cmxa"

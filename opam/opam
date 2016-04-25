@@ -1,0 +1,19 @@
+opam-version: "1.2"
+name: "ogene"
+version: "0.0.0"
+maintainer: "B. Arman Aksoy <arman@aksoy.org>"
+authors: ["B. Arman Aksoy <arman@aksoy.org>"]
+homepage: "https://github.com/armish/cloml"
+bug-reports: "https://github.com/armish/cloml/issues"
+license: "Apache-2.0"
+build: [
+  [make]
+]
+install: [make "install"]
+remove: [make "uninstall"]
+depends: [
+  "ocamlfind"
+  "cmdliner"
+  "core"
+  "alcotest"
+]

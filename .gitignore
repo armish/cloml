@@ -10,6 +10,8 @@
 
 # ocamlbuild working directory
 _build/
+_tests/
+/cloml
 
 # ocamlbuild targets
 *.byte
