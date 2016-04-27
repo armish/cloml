@@ -22,7 +22,6 @@ let output_file =
 let cmd =
 	let doc = "annotate a VCF file with clonality information" in
 	let version = "0.0.0" in
-	let fmt = `Plain in
 	let man = [
 		`S "Description";
 		`P "$(tname) annotates a given VCF file with clonality information.";
@@ -30,7 +29,7 @@ let cmd =
 		`P "$(tname) input.vcf output.vcf"
 	] in
 	Term.(const in_verbatim $ input_file $ output_file),
-	Term.(info "cloml" ~version ~doc ~man ~fmt)
+	Term.(info "cloml" ~version ~doc ~man)
 
 let () = 
 	match Cmdliner.Term.eval cmd with 
