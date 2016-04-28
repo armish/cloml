@@ -1,5 +1,5 @@
 BUILD_DIR=_build
-PACKAGES=core cmdliner
+PACKAGES=core cmdliner oml sosa
 TEST_PACKAGES=$(PACKAGES) alcotest
 
 .PHONY: all clean test deps testDeps install
@@ -8,7 +8,9 @@ all:
 	ocamlbuild -use-ocamlfind -tag thread -I src/ \
 	    -build-dir $(BUILD_DIR)\
 	    $(foreach package, $(PACKAGES),-package $(package))\
-	    cloml.cma cloml.cmxs cloml.cmxa cloml.native
+	    vcf.cma vcf.cmxs vcf.cmxa \
+	    estimate.cma estimate.cmxs estimate.cmxa \
+	    cloml.native
 	cp $(BUILD_DIR)/src/cloml.native ./cloml
 
 deps:
