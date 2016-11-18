@@ -8,6 +8,10 @@ let output_file =
   let doc="The annotated VCF file to be written." in
   Arg.(required & pos 1 (some string) None & info [] ~docv:"OUTPUT_VCF" ~doc)
 
+let sample_name =
+  let doc="Sample name associated with the variants to be analyzed." in
+  Arg.(value & opt string "TUMOR" & info ["s"; "sample"] ~docv:"SAMPLE" ~doc)
+
 let cmd =
   let doc = "annotate a VCF file with clonality information" in
   let version = "0.0.0" in
@@ -17,7 +21,7 @@ let cmd =
     `P "To annotate a VCF file";
     `P "$(tname) input.vcf output.vcf"
   ] in
-  Term.(const Vcf.process $ input_file $ output_file),
+  Term.(const Vcf.process $ sample_name $ input_file $ output_file),
   Term.(info "cloml" ~version ~doc ~man)
 
 let () = 

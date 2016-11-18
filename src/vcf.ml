@@ -1,4 +1,5 @@
 open Core
+open Core_kernel
 open Printf
 module String = Sosa.Native_string
 
@@ -66,13 +67,13 @@ let extract_vafs lines sample_name =
   List.filter (fun line -> not (starts_with "#" line)) lines
   |> List.map extract_vaf
 
-let process input_file output_file =
+let process sample_name input_file output_file =
   let ivcf = In_channel.create input_file in
   let ovcf = Out_channel.create output_file in
   let lines = In_channel.input_lines ivcf in
   let output line = fprintf ovcf "%s\n" line in
   let purity
-    = extract_vafs lines "TCGA-55-7728-01A-11D-2184-08"
+    = extract_vafs lines sample_name
     |> Estimate.purity in
   let purity_str = string_of_float (purity) in
   add_clonality_header ~purity:purity_str lines
