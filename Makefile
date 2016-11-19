@@ -26,14 +26,10 @@ clean:
 
 install:
 	ocamlfind install cloml META\
-	    _build/src/cloml.a\
 	    _build/src/cloml.o\
-	    _build/src/cloml.cma\
 	    _build/src/cloml.cmi\
 	    _build/src/cloml.cmo\
-	    _build/src/cloml.cmx\
-	    _build/src/cloml.cmxa\
-        _build/src/cloml.cmxs
+	    _build/src/cloml.cmx
 
 uninstall:
 	ocamlfind remove cloml

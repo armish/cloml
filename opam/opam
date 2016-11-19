@@ -17,5 +17,4 @@ depends: [
   "oml"
   "sosa"
   "core"
-  "alcotest"
 ]
