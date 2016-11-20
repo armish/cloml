@@ -3,7 +3,7 @@ sudo: required
 install: wget https://raw.githubusercontent.com/ocaml/ocaml-ci-scripts/master/.travis-opam.sh
 script: bash -ex .travis-opam.sh
 env:
-  - OCAML_VERSION=4.02 PACKAGE=cloml INSTALL=true
-  - OCAML_VERSION=4.03 PACKAGE=cloml INSTALL=true
-  - OCAML_VERSION=4.04 PACKAGE=cloml INSTALL=true
+  - OCAML_VERSION=4.02 PACKAGE=cloml INSTALL=true TESTS=true
+  - OCAML_VERSION=4.03 PACKAGE=cloml INSTALL=true TESTS=true
+  - OCAML_VERSION=4.04 PACKAGE=cloml INSTALL=true TESTS=true
 os: linux

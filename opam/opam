@@ -6,9 +6,8 @@ authors: ["B. Arman Aksoy <arman@aksoy.org>"]
 homepage: "https://github.com/armish/cloml"
 bug-reports: "https://github.com/armish/cloml/issues"
 license: "Apache-2.0"
-build: [
-  [make]
-]
+build: [[make]]
+build-test: [make "test"]
 install: [make "install"]
 remove: [make "uninstall"]
 depends: [

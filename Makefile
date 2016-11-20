@@ -26,19 +26,19 @@ clean:
 
 install:
 	ocamlfind install cloml META\
-	    _build/src/cloml.o\
-	    _build/src/cloml.cmi\
-	    _build/src/cloml.cmo\
-	    _build/src/cloml.cmx
+	    $(BUILD_DIR)/src/cloml.o\
+	    $(BUILD_DIR)/src/cloml.cmi\
+	    $(BUILD_DIR)/src/cloml.cmo\
+	    $(BUILD_DIR)/src/cloml.cmx
 
 uninstall:
 	ocamlfind remove cloml
 
-test:
-	ocamlbuild -use-ocamlfind -tag thread -I test/ -I src/ \
-	  -build-dir $(BUILD_DIR)\
-	  $(foreach package, $(TEST_PACKAGES),-package $(package))\
-	  test.native
-	-mkdir $(BUILD_DIR)/test/data
-	cp test/data/* $(BUILD_DIR)/test/data/
-	$(BUILD_DIR)/test/test.native
+define test_purity
+	$(eval purity := $(shell ./cloml -p $(1) -s $(2) test/data/$(3) /dev/stdout | grep -i purity |sed -e 's/.*Purity=\([0-9.]*\),.*/\1/g'))
+	[ "$(purity)" = "$(4)" ]
+endef
+
+test: all
+	$(call test_purity,false,TCGA-55-7227-01A-11D-2036-08,TCGA-55-7227.with_rejects.vcf,0.49899270073)
+	$(call test_purity,true,TCGA-55-7227-01A-11D-2036-08,TCGA-55-7227.with_rejects.vcf,0.461365079365)
