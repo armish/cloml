@@ -2,19 +2,19 @@ open Cmdliner
 
 let input_file =
   let doc ="The input VCF file to be annotated." in
-  Arg.(required & pos 0 (some string) None & info [] ~docv:"INPUT_VCF" ~doc)
+  Arg.(value & opt (some string) None & info ["i"; "input-vcf"] ~docv:"VCF_IN" ~doc)
 
 let output_file =
   let doc="The annotated VCF file to be written." in
-  Arg.(required & pos 1 (some string) None & info [] ~docv:"OUTPUT_VCF" ~doc)
+  Arg.(value & opt (some string) None & info ["o"; "output-vcf"] ~docv:"VCF_OUT" ~doc)
 
-let sample_name =
-  let doc="Sample name associated with the variants to be analyzed." in
-  Arg.(value & opt string "TUMOR" & info ["s"; "sample"] ~docv:"SAMPLE" ~doc)
+let use_all_variants =
+  let doc="Use all variants regardless of their filter status (PASS/REJECT)." in
+  Arg.(value & flag & info ["a"; "use-all-variants"] ~doc)
 
-let filter_pass =
-  let doc="Use only variants that passed through the filtering." in
-  Arg.(value & opt bool true & info ["p"; "filter-pass"] ~docv:"TRUE/FALSE" ~doc)
+let print_stats =
+  let doc="Just print summary statistics and do not annotate." in
+  Arg.(value & flag & info ["s"; "summary"] ~doc)
 
 let cmd =
   let doc = "annotate a VCF file with clonality information" in
@@ -23,14 +23,16 @@ let cmd =
     `S "Description";
     `P "$(tname) annotates a given VCF file with clonality information.";
     `P "To annotate a VCF file";
-    `P "$(tname) input.vcf output.vcf"
+    `P "$(tname) --input-vcf input.vcf --output-vcf output.vcf";
+    `P "Or:";
+    `P "cat input.vcf |$(tname) > output.vcf"
   ] in
   Term.(const
     Vcf.process
-    $ sample_name
-    $ filter_pass
     $ input_file
     $ output_file
+    $ use_all_variants
+    $ print_stats
   ),
   Term.(info "cloml" ~version ~doc ~man)
 

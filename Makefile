@@ -1,10 +1,9 @@
 BUILD_DIR=_build
 PACKAGES=core cmdliner oml sosa
-TEST_PACKAGES=$(PACKAGES) alcotest
 
 .PHONY: all clean test deps testDeps install
 
-all:
+all: 
 	ocamlbuild -use-ocamlfind -tag thread -I src/ \
 	    -build-dir $(BUILD_DIR)\
 	    $(foreach package, $(PACKAGES),-package $(package))\
@@ -15,9 +14,6 @@ all:
 
 deps:
 	opam install $(PACKAGES)
-
-testDeps:
-	opam install $(TEST_PACKAGES)
 
 clean:
 	ocamlbuild -build-dir $(BUILD_DIR) -clean
@@ -35,10 +31,23 @@ uninstall:
 	ocamlfind remove cloml
 
 define test_purity
-	$(eval purity := $(shell ./cloml -p $(1) -s $(2) test/data/$(3) /dev/stdout | grep -i purity |sed -e 's/.*Purity=\([0-9.]*\),.*/\1/g'))
-	[ "$(purity)" = "$(4)" ]
+	$(eval purity := \
+		$(shell ./cloml --input-vcf test/data/$(1) $(2) \
+			| grep -i purity \
+			| sed -e 's/.*Purity=\[\(.*\)\],Nu.*/\1/g'
+		 )
+	)
+	[ "$(purity)" = "$(3)" ]
 endef
 
-test: all
-	$(call test_purity,false,TCGA-55-7227-01A-11D-2036-08,TCGA-55-7227.with_rejects.vcf,0.49899270073)
-	$(call test_purity,true,TCGA-55-7227-01A-11D-2036-08,TCGA-55-7227.with_rejects.vcf,0.461365079365)
+# Test variables/expectations
+TEST_VCF_MIXED=TCGA-55-7227.with_rejects.vcf
+TEST_VCF_ALL=TCGA-55-7227.vcf
+TEST_PURITY_ALL=0.000,0.500
+TEST_PURITY_PASSED=0.000,0.480
+	
+test:
+	$(call test_purity,$(TEST_VCF_MIXED),"--use-all-variants",$(TEST_PURITY_ALL))
+	$(call test_purity,$(TEST_VCF_MIXED),,$(TEST_PURITY_PASSED))
+	$(call test_purity,$(TEST_VCF_ALL),,$(TEST_PURITY_ALL))
+	$(call test_purity,$(TEST_VCF_ALL),"--use-all-variants",$(TEST_PURITY_ALL))
