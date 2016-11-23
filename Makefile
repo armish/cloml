@@ -43,11 +43,14 @@ endef
 # Test variables/expectations
 TEST_VCF_MIXED=TCGA-55-7227.with_rejects.vcf
 TEST_VCF_ALL=TCGA-55-7227.vcf
+TEST_VCF_NOVAF=TCGA-55-7227.no_vaf.vcf
 TEST_PURITY_ALL=0.000,0.500
 TEST_PURITY_PASSED=0.000,0.480
+TEST_PURITY_NOVAF=.,.
 	
 test:
 	$(call test_purity,$(TEST_VCF_MIXED),"--use-all-variants",$(TEST_PURITY_ALL))
 	$(call test_purity,$(TEST_VCF_MIXED),,$(TEST_PURITY_PASSED))
 	$(call test_purity,$(TEST_VCF_ALL),,$(TEST_PURITY_ALL))
 	$(call test_purity,$(TEST_VCF_ALL),"--use-all-variants",$(TEST_PURITY_ALL))
+	$(call test_purity,$(TEST_VCF_NOVAF),"--fail-safe",$(TEST_PURITY_NOVAF))

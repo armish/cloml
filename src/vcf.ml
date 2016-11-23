@@ -48,21 +48,26 @@ let add_clonality_header ~purities ~num_of_clones ~samples lines =
   in
   add_header hline "##INFO" lines
 
-let extract_vafs sample_idx format_idx lines use_all_variants =
+let extract_vafs sample_idx sample format_idx lines use_all_variants =
   let extract_vaf line =
     let columns = tab_split line in
-    let (sample, format) = 
+    let (sample_data, format) = 
       List.nth columns sample_idx, List.nth columns format_idx
     in
     let af_idx = 
       let ffields = String.split format (`Character ':') in
       let fidx = max (find "AF" ffields) (find "FA" ffields) in
       if fidx < 0 
-        then failwith "Couldn't find the VAF information in the VCF."
-        else fidx
+        then
+          let msg =
+            sprintf "Couldn't find the VAF information for sample: %s" sample
+          in
+          failwith msg
+        else
+          fidx
     in
     let af =
-      List.nth (String.split sample (`Character ':')) af_idx
+      List.nth (String.split sample_data (`Character ':')) af_idx
     in
     float_of_string af
   in
@@ -80,6 +85,7 @@ let process
     output_file
     use_all_variants
     print_stats
+    fail_safe
   =
   let ivcf = In_channel.create 
     (match input_file with None -> "/dev/stdin" | Some i -> i)
@@ -87,6 +93,7 @@ let process
   let ovcf = Out_channel.create
     (match output_file with None -> "/dev/stdout" | Some o -> o)
   in
+  let evcf = Out_channel.create "/dev/stderr" in
   let lines = In_channel.input_lines ivcf in
   let column_names =
     List.filter (fun line -> starts_with "#CHROM" line) lines
@@ -94,17 +101,30 @@ let process
     |> tab_split
   in
   let format_idx = find "FORMAT" column_names in
+  let sample_stats idx sample format_idx lines use_all_variants =
+    let vafs = extract_vafs idx sample format_idx lines use_all_variants in
+    let purity = Estimate.purity vafs in
+    let purity_str = sprintf "%1.3f" purity in
+    let noc = Estimate.number_of_clones vafs in
+    purity_str, noc
+  in
   let purities, num_of_clones, samples =
     let p_all = ref [] in
     let noc_all = ref [] in
     let samples_all = ref [] in
     for idx=9 to ((List.length column_names) - 1) do
-      let vafs = extract_vafs idx format_idx lines use_all_variants in
-      let purity = Estimate.purity vafs in
-      let purity_str = sprintf "%1.3f" purity in
-      let noc = Estimate.number_of_clones vafs in
       let sample = List.nth column_names idx in
-      p_all := purity_str :: !p_all;
+      let purity, noc = 
+        try
+          sample_stats idx sample format_idx lines use_all_variants
+        with Failure msg -> (
+          if fail_safe
+            then fprintf evcf "%s\n" msg
+            else failwith msg; 
+          ".", "."
+        )
+      in
+      p_all := purity :: !p_all;
       noc_all := noc :: !noc_all;
       samples_all := sample :: !samples_all
     done;
@@ -113,5 +133,6 @@ let process
   add_clonality_header ~purities ~num_of_clones ~samples lines
     |> add_clonality_format
     |> List.iter (fun line -> fprintf ovcf "%s\n" line);
+  Out_channel.close evcf;
   Out_channel.close ovcf;
   In_channel.close ivcf
